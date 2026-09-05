@@ -66,18 +66,18 @@ export default function AppraisalForm() {
     setLoading(true);
 
     try {
-      const crmUrl = process.env.NEXT_PUBLIC_CRM_API_BASE_URL;
-      if (crmUrl && !crmUrl.includes('yourdomain')) {
-        await fetch(`${crmUrl}/appraisals`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
+      const res = await fetch('/api/appraisal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
       } else {
-        await new Promise((res) => setTimeout(res, 800));
+        setSubmitted(true);
       }
-      setSubmitted(true);
-    } catch (err: any) {
+    } catch {
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -409,7 +409,7 @@ export default function AppraisalForm() {
                 {loading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Transmitting Request...</span>
+                    <span>Transmitting to CRM...</span>
                   </>
                 ) : (
                   <>
