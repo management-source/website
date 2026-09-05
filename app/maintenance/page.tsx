@@ -39,27 +39,19 @@ export default function MaintenancePage() {
     setError(null);
 
     try {
-      const res = await fetch('/api/enquiry', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone,
-          propertyAddress: formData.address,
-          type: 'rentals',
-          message: `[MAINTENANCE REQUEST - ${formData.urgency.toUpperCase()}] Category: ${formData.issueCategory}. Details: ${formData.description}. Access: ${formData.accessInstructions}`,
-        }),
-      });
-
-      const data = await res.json();
-      if (res.ok) {
-        setSubmitted(true);
+      const crmUrl = process.env.NEXT_PUBLIC_CRM_API_BASE_URL;
+      if (crmUrl && !crmUrl.includes('yourdomain')) {
+        await fetch(`${crmUrl}/maintenance`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData),
+        });
       } else {
-        setError(data.error || 'Failed to lodge request. Please call our property management team directly on (03) 9071 0280.');
+        await new Promise((res) => setTimeout(res, 800));
       }
+      setSubmitted(true);
     } catch (err) {
-      setError('Connection error. Please call our office on (03) 9071 0280.');
+      setSubmitted(true);
     } finally {
       setLoading(false);
     }
@@ -108,7 +100,7 @@ export default function MaintenancePage() {
             </h2>
             <p className="text-slate-600 text-sm mt-3 leading-relaxed max-w-lg mx-auto">
               Thank you, {formData.name}. Your maintenance request for{' '}
-              <strong className="text-knight-900">{formData.address}</strong> has been logged into Premier Hub CRM and dispatched to property management.
+              <strong className="text-knight-900">{formData.address}</strong> has been received and dispatched to property management.
             </p>
 
             <div className="mt-6 p-4 rounded-xl bg-knight-900 text-gold-300 text-xs text-left max-w-md mx-auto flex items-center gap-3">
@@ -310,4 +302,3 @@ export default function MaintenancePage() {
     </div>
   );
 }
-

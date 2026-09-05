@@ -1,37 +1,58 @@
-import React from 'react';
+'use client';
+
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import Link from 'next/link';
-import { Search, Filter, SlidersHorizontal, MapPin, Home, ArrowLeft } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Search, MapPin, Home, ArrowLeft, Loader2 } from 'lucide-react';
 import PropertyCard from '@/components/PropertyCard';
-import { getProperties } from '@/lib/crm';
+import { PROPERTIES } from '@/data/content';
 import { PropertyStatus } from '@/types';
 
-export const revalidate = 60;
+function PropertiesContent() {
+  const searchParams = useSearchParams();
+  const initialStatus = (searchParams.get('status') as PropertyStatus | 'all') || 'all';
+  const initialSuburb = searchParams.get('suburb') || '';
+  const initialType = searchParams.get('type') || '';
+  const initialSearch = searchParams.get('search') || '';
 
-interface PageProps {
-  searchParams: Promise<{
-    status?: string;
-    suburb?: string;
-    type?: string;
-    bedrooms?: string;
-    search?: string;
-  }>;
-}
+  const [status, setStatus] = useState<PropertyStatus | 'all'>(initialStatus);
+  const [suburb, setSuburb] = useState<string>(initialSuburb);
+  const [type, setType] = useState<string>(initialType);
+  const [searchTerm, setSearchTerm] = useState<string>(initialSearch);
 
-export default async function PropertiesPage({ searchParams }: PageProps) {
-  const resolvedParams = await searchParams;
-  const status = (resolvedParams.status as PropertyStatus | 'all') || 'all';
-  const suburb = resolvedParams.suburb || '';
-  const type = resolvedParams.type || '';
-  const bedrooms = resolvedParams.bedrooms ? Number(resolvedParams.bedrooms) : undefined;
-  const searchTerm = resolvedParams.search || '';
+  useEffect(() => {
+    if (searchParams.get('status')) {
+      setStatus(searchParams.get('status') as PropertyStatus | 'all');
+    }
+    if (searchParams.get('suburb')) {
+      setSuburb(searchParams.get('suburb') || '');
+    }
+  }, [searchParams]);
 
-  const properties = await getProperties({
-    status: status === 'all' ? undefined : status,
-    suburb: suburb || undefined,
-    type: type || undefined,
-    bedrooms,
-    searchTerm: searchTerm || undefined,
-  });
+  const filteredProperties = useMemo(() => {
+    return PROPERTIES.filter((p) => {
+      if (status !== 'all' && p.status !== status) return false;
+      if (suburb && !p.address.suburb.toLowerCase().includes(suburb.toLowerCase())) return false;
+      if (type && p.type.toLowerCase() !== type.toLowerCase()) return false;
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        const matches =
+          p.title.toLowerCase().includes(term) ||
+          p.address.fullAddress.toLowerCase().includes(term) ||
+          p.address.suburb.toLowerCase().includes(term) ||
+          p.headline.toLowerCase().includes(term);
+        if (!matches) return false;
+      }
+      return true;
+    });
+  }, [status, suburb, type, searchTerm]);
+
+  const resetFilters = () => {
+    setStatus('all');
+    setSuburb('');
+    setType('');
+    setSearchTerm('');
+  };
 
   const getPageTitle = () => {
     if (status === 'for_sale') return 'Residential Properties for Sale';
@@ -63,7 +84,7 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
                 {getPageTitle()}
               </h1>
               <p className="text-slate-600 text-sm mt-1">
-                Showing {properties.length} {properties.length === 1 ? 'property' : 'properties'} matching your criteria
+                Showing {filteredProperties.length} {filteredProperties.length === 1 ? 'property' : 'properties'} matching your criteria
               </p>
             </div>
 
@@ -76,36 +97,31 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* Filter Bar */}
+        {/* Interactive Filter Bar */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6 mb-10">
-          <form method="GET" action="/properties" className="space-y-4">
+          <div className="space-y-4">
             {/* Status Pills */}
             <div className="flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
               {[
-                { label: 'All Properties', val: 'all' },
-                { label: 'For Sale', val: 'for_sale' },
-                { label: 'For Rent', val: 'for_rent' },
-                { label: 'Recently Sold', val: 'sold' },
+                { label: 'All Properties', val: 'all' as const },
+                { label: 'For Sale', val: 'for_sale' as const },
+                { label: 'For Rent', val: 'for_rent' as const },
+                { label: 'Recently Sold', val: 'sold' as const },
               ].map((pill) => {
-                const isActive = (status || 'all') === pill.val;
+                const isActive = status === pill.val;
                 return (
-                  <label
+                  <button
                     key={pill.val}
-                    className={`px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer whitespace-nowrap transition-all ${isActive
+                    type="button"
+                    onClick={() => setStatus(pill.val)}
+                    className={`px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer whitespace-nowrap transition-all ${
+                      isActive
                         ? 'bg-knight-900 text-white shadow-md'
                         : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
+                    }`}
                   >
-                    <input
-                      type="radio"
-                      name="status"
-                      value={pill.val}
-                      defaultChecked={isActive}
-                      className="hidden"
-                      onChange={(e) => e.target.form?.submit()}
-                    />
-                    <span>{pill.label}</span>
-                  </label>
+                    {pill.label}
+                  </button>
                 );
               })}
             </div>
@@ -116,8 +132,8 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
               <div className="relative">
                 <input
                   type="text"
-                  name="search"
-                  defaultValue={searchTerm}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Street, address, keywords..."
                   className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-gold-500 focus:outline-none bg-slate-50"
                 />
@@ -128,8 +144,8 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
               <div className="relative">
                 <input
                   type="text"
-                  name="suburb"
-                  defaultValue={suburb}
+                  value={suburb}
+                  onChange={(e) => setSuburb(e.target.value)}
                   placeholder="Filter by suburb (e.g. Berwick, Clyde)..."
                   className="w-full pl-9 pr-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-gold-500 focus:outline-none bg-slate-50"
                 />
@@ -139,8 +155,8 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
               {/* Property Type */}
               <div>
                 <select
-                  name="type"
-                  defaultValue={type}
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
                   className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-gold-500 focus:outline-none bg-slate-50"
                 >
                   <option value="">All Types</option>
@@ -151,46 +167,46 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
                 </select>
               </div>
 
-              {/* Apply / Reset */}
+              {/* Reset Action */}
               <div className="flex items-center gap-2">
-                <button
-                  type="submit"
-                  className="flex-1 py-2 text-xs sm:text-sm font-bold uppercase tracking-wider text-knight-950 bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 rounded-xl shadow transition-colors text-center"
-                >
-                  Filter
-                </button>
-                {(suburb || type || bedrooms || searchTerm || (status && status !== 'all')) && (
-                  <Link
-                    href="/properties"
-                    className="px-3 py-2 text-xs text-slate-600 hover:text-knight-900 border border-slate-200 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors"
+                {(suburb || type || searchTerm || status !== 'all') ? (
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="w-full py-2 text-xs sm:text-sm font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200 rounded-xl transition-colors text-center"
                   >
-                    Reset
-                  </Link>
+                    Reset Filters
+                  </button>
+                ) : (
+                  <div className="text-xs text-slate-400 italic">
+                    Showing all available
+                  </div>
                 )}
               </div>
             </div>
-          </form>
+          </div>
         </div>
 
         {/* Results Grid */}
-        {properties.length === 0 ? (
+        {filteredProperties.length === 0 ? (
           <div className="bg-white rounded-2xl p-12 text-center border border-slate-200 max-w-lg mx-auto">
             <Home className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h3 className="font-serif text-lg font-bold text-knight-900">No properties found</h3>
             <p className="text-xs text-slate-500 mt-1">
               Try adjusting your suburb search, property type, or view all listings.
             </p>
-            <Link
-              href="/properties"
+            <button
+              type="button"
+              onClick={resetFilters}
               className="mt-5 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-knight-900 text-white text-xs font-semibold hover:bg-knight-800 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Reset all filters</span>
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {properties.map((prop, idx) => (
+            {filteredProperties.map((prop, idx) => (
               <PropertyCard key={prop.id} property={prop} priority={idx < 3} />
             ))}
           </div>
@@ -200,3 +216,16 @@ export default async function PropertiesPage({ searchParams }: PageProps) {
   );
 }
 
+export default function PropertiesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+          <Loader2 className="w-8 h-8 text-gold-600 animate-spin" />
+        </div>
+      }
+    >
+      <PropertiesContent />
+    </Suspense>
+  );
+}
