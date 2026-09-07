@@ -51,13 +51,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${cinzel.variable} scroll-smooth`}>
-      <body className="font-sans antialiased bg-slate-50 text-slate-900 flex flex-col min-h-screen selection:bg-gold-500 selection:text-knight-950">
+      <body className="font-sans antialiased bg-white text-neutral-900 flex flex-col min-h-screen selection:bg-gold-500 selection:text-black">
         <TopBanner />
         <Navbar />
-        <main className="flex-grow">{children}</main>
+        <main className="flex-grow bg-white">{children}</main>
         <Footer />
       </body>
     </html>
   );
 }
-

@@ -151,7 +151,7 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-10">
+    <div className="min-h-screen bg-white py-10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Header Bar */}
         <div className="bg-knight-900 text-white rounded-2xl p-6 shadow-md border border-knight-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
@@ -280,13 +280,12 @@ export default function AdminPage() {
                       <div className="text-slate-500 text-[11px]">{prop.address.fullAddress}</div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
-                        prop.status === 'for_sale'
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${prop.status === 'for_sale'
                           ? 'bg-emerald-100 text-emerald-800'
                           : prop.status === 'for_rent'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}>
                         {prop.status}
                       </span>
                     </td>
@@ -344,3 +343,4 @@ export default function AdminPage() {
     </div>
   );
 }
+

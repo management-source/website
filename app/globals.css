@@ -4,15 +4,10 @@
 
 @layer base {
   body {
-    @apply text-slate-800 bg-slate-50 antialiased;
+    @apply text-neutral-900 bg-white antialiased;
   }
 
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight;
   }
 }
@@ -24,14 +19,14 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #060e1a;
+  background: #000000;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2b5278;
+  background: #1a1a1a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #c5a880;
+  background: #d4af37;
 }

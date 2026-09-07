@@ -240,11 +240,10 @@ export default function AppraisalForm() {
                     key={type}
                     type="button"
                     onClick={() => setFormData({ ...formData, propertyType: type })}
-                    className={`py-3 px-3 rounded-xl border text-xs font-semibold transition-all ${
-                      formData.propertyType === type
-                        ? 'bg-knight-900 text-white border-knight-900 shadow-md'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                    }`}
+                    className={`py-3 px-3 rounded-xl border text-xs font-semibold transition-all ${formData.propertyType === type
+                      ? 'bg-knight-900 text-white border-knight-900 shadow-md'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                      }`}
                   >
                     {type}
                   </button>

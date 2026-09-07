@@ -26,7 +26,7 @@ export default function AboutPage() {
   const leadership = TEAM_MEMBERS.slice(0, 2);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-white">
       {/* Hero Header */}
       <section className="bg-knight-950 text-white py-20 lg:py-24 relative overflow-hidden">
         <div className="absolute inset-0 z-0 opacity-20">
@@ -127,7 +127,7 @@ export default function AboutPage() {
       </section>
 
       {/* 2. Key Pillars: Sales vs Property Management */}
-      <section className="py-16 sm:py-24 bg-slate-50 border-b border-slate-200">
+      <section className="py-16 sm:py-24 bg-white border-b border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="text-gold-600 text-xs font-bold uppercase tracking-widest">
@@ -220,7 +220,7 @@ export default function AboutPage() {
             {leadership.map((leader) => (
               <div
                 key={leader.id}
-                className="bg-slate-50 rounded-3xl p-8 border border-slate-200 flex flex-col sm:flex-row gap-6 items-start"
+                className="bg-white rounded-3xl p-8 border border-neutral-200 shadow-sm flex flex-col sm:flex-row gap-6 items-start"
               >
                 <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl overflow-hidden relative shadow-lg ring-4 ring-gold-400/30 shrink-0 mx-auto sm:mx-0">
                   <Image
@@ -281,7 +281,7 @@ export default function AboutPage() {
       </section>
 
       {/* 4. Strategic Offices */}
-      <section className="py-16 sm:py-24 bg-slate-50">
+      <section className="py-16 sm:py-24 bg-white border-t border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-14">
             <span className="text-gold-600 text-xs font-bold uppercase tracking-widest">

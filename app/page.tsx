@@ -69,24 +69,6 @@ export default async function HomePage() {
           <p className="mt-5 text-base sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
             Welcome to Dons Premier Estate Agents. Founded in 2019 by Lushan Dons & Jessica Gale, delivering elite sales results, licensed auctioneering, and responsive property management across Melbourne&apos;s South-East.
           </p>
-
-          {/* Quick Metrics Bar */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 w-full max-w-3xl">
-            {AGENCY_INFO.stats.map((st, i) => (
-              <div
-                key={i}
-                className="bg-knight-900/80 backdrop-blur-md rounded-xl p-3 border border-knight-700/80 text-center"
-              >
-                <div className="text-xl sm:text-2xl font-serif font-bold text-gold-400">
-                  {st.value}
-                </div>
-                <div className="text-[11px] text-slate-400 uppercase tracking-wider font-medium mt-0.5">
-                  {st.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
           {/* Interactive Property Search Container */}
           <div className="w-full max-w-4xl mt-10 bg-white/95 backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-6 border border-white/20 text-left">
             <form action="/properties" method="GET" className="space-y-4">
@@ -273,7 +255,7 @@ export default async function HomePage() {
       </section>
 
       {/* 3. FEATURED PROPERTIES (For Sale & For Rent) */}
-      <section className="py-16 sm:py-24 bg-slate-50">
+      <section className="py-16 sm:py-24 bg-white border-t border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
@@ -355,7 +337,7 @@ export default async function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Service 1: Property Sales */}
-            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-8 border border-neutral-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-knight-900 text-gold-400 flex items-center justify-center mb-6">
                   <Gavel className="w-6 h-6" />
@@ -393,7 +375,7 @@ export default async function HomePage() {
             </div>
 
             {/* Service 2: Property Management */}
-            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-8 border border-neutral-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-knight-900 text-gold-400 flex items-center justify-center mb-6">
                   <Key className="w-6 h-6" />
@@ -431,7 +413,7 @@ export default async function HomePage() {
             </div>
 
             {/* Service 3: Free Market Appraisals */}
-            <div className="bg-slate-50 rounded-2xl p-8 border border-slate-200/80 hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            <div className="bg-white rounded-2xl p-8 border border-neutral-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
               <div>
                 <div className="w-12 h-12 rounded-xl bg-knight-900 text-gold-400 flex items-center justify-center mb-6">
                   <TrendingUp className="w-6 h-6" />
@@ -472,7 +454,7 @@ export default async function HomePage() {
       </section>
 
       {/* 5. SUBURB GUIDE (Melbourne South-East Focus) */}
-      <section className="py-16 sm:py-24 bg-slate-50">
+      <section className="py-16 sm:py-24 bg-white border-t border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
             <div>
@@ -549,7 +531,7 @@ export default async function HomePage() {
             {leadership.map((leader) => (
               <div
                 key={leader.id}
-                className="bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start hover:shadow-xl transition-all"
+                className="bg-white rounded-2xl overflow-hidden border border-neutral-200 shadow-sm p-6 sm:p-8 flex flex-col sm:flex-row gap-6 items-start hover:shadow-xl transition-all"
               >
                 <div className="w-28 h-28 sm:w-36 sm:h-36 rounded-2xl overflow-hidden relative shrink-0 shadow-md ring-2 ring-gold-400/40 bg-slate-200 mx-auto sm:mx-0">
                   <Image

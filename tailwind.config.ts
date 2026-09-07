@@ -11,26 +11,26 @@ const config: Config = {
     extend: {
       colors: {
         knight: {
-          950: "#060e1a",
-          900: "#0A192F",
-          850: "#0d233f",
-          800: "#102A43",
-          700: "#1E3E62",
-          600: "#2B5278",
-          100: "#E3EBF3",
-          50: "#F0F5FA",
+          950: "#000000", // Pure Black
+          900: "#0A0A0A", // Rich Luxury Black
+          850: "#121212", // Deep Charcoal
+          800: "#1A1A1A",
+          700: "#2A2A2A",
+          600: "#3F3F46",
+          100: "#F4F4F5",
+          50: "#FAFAFA",
         },
         gold: {
           50: "#FDFBF7",
           100: "#F9F5EC",
           200: "#F1E5CD",
-          300: "#E6D1A8",
-          400: "#D8BC83",
-          500: "#C5A880",
-          600: "#B89358",
-          700: "#9C7942",
-          800: "#7F6235",
-          900: "#5D4726",
+          300: "#EAD49B",
+          400: "#DEBF72",
+          500: "#D4AF37", // Official Metallic Gold
+          600: "#BA9528",
+          700: "#9C791D",
+          800: "#755B14",
+          900: "#4D3B0A",
         },
       },
       fontFamily: {
@@ -43,4 +43,3 @@ const config: Config = {
 };
 
 export default config;
-
