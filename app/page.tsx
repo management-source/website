@@ -37,18 +37,21 @@ export default async function HomePage() {
     <div className="flex flex-col min-h-screen">
       {/* 1. HERO SECTION */}
       <section className="relative min-h-[640px] lg:min-h-[720px] flex items-center justify-center bg-knight-950 overflow-hidden">
-        {/* Background Visual */}
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=85"
-            alt="Dons Premier Real Estate Luxury Home"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover opacity-35 filter brightness-90"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-knight-950 via-knight-950/70 to-knight-900/60" />
-          <div className="absolute inset-0 bg-[radial-gradient(#c5a880_1px,transparent_1px)] [background-size:24px_24px] opacity-15" />
+        {/* Background Visual Walkthrough Video */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=85"
+            className="w-full h-full object-cover opacity-45 scale-105 filter brightness-95"
+          >
+            <source src="/videos/hero-walkthrough.webm" type="video/webm" />
+            <source src="https://upload.wikimedia.org/wikipedia/commons/transcoded/f/fa/UE4Arch.com_-_Viennese_apartment.webm/UE4Arch.com_-_Viennese_apartment.webm.720p.vp9.webm" type="video/webm" />
+          </video>
+          {/* Elegant Cinematic Gradient for High Contrast & Legibility (Dot overlay removed) */}
+          <div className="absolute inset-0 bg-gradient-to-t from-knight-950 via-knight-950/65 to-knight-900/40" />
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center flex flex-col items-center">

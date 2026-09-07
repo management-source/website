@@ -281,10 +281,10 @@ export default function AdminPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${prop.status === 'for_sale'
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : prop.status === 'for_rent'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-red-100 text-red-800'
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : prop.status === 'for_rent'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-red-100 text-red-800'
                         }`}>
                         {prop.status}
                       </span>
