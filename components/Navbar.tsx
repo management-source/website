@@ -43,8 +43,8 @@ export default function Navbar() {
   return (
     <nav
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${scrolled
-          ? 'bg-knight-900/95 backdrop-blur-md shadow-xl border-b border-knight-800'
-          : 'bg-knight-900 border-b border-knight-800'
+        ? 'bg-knight-900/95 backdrop-blur-md shadow-xl border-b border-knight-800'
+        : 'bg-knight-900 border-b border-knight-800'
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -56,9 +56,8 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center space-x-1">
             <Link
               href="/"
-              className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
-                pathname === '/' ? 'text-gold-400 bg-knight-800/80' : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-              }`}
+              className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname === '/' ? 'text-gold-400 bg-knight-800/80' : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
+                }`}
             >
               Home
             </Link>
@@ -70,11 +69,10 @@ export default function Navbar() {
               onMouseLeave={() => setSalesDropdown(false)}
             >
               <button
-                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  pathname.startsWith('/properties') && !pathname.includes('status=for_rent')
-                    ? 'text-gold-400 bg-knight-800/80'
-                    : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-                }`}
+                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname.startsWith('/properties') && !pathname.includes('status=for_rent')
+                  ? 'text-gold-400 bg-knight-800/80'
+                  : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
+                  }`}
               >
                 <span>Sales</span>
                 <ChevronDown className="w-4 h-4 opacity-70" />
@@ -137,11 +135,10 @@ export default function Navbar() {
               onMouseLeave={() => setRentalsDropdown(false)}
             >
               <button
-                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
-                  pathname.startsWith('/rentals') || pathname.includes('status=for_rent')
-                    ? 'text-gold-400 bg-knight-800/80'
-                    : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-                }`}
+                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname.startsWith('/rentals') || pathname.includes('status=for_rent')
+                  ? 'text-gold-400 bg-knight-800/80'
+                  : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
+                  }`}
               >
                 <span>Rentals</span>
                 <ChevronDown className="w-4 h-4 opacity-70" />

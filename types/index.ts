@@ -35,6 +35,31 @@ export interface Property {
     image: string;
   };
   featured?: boolean;
+  // Extended CRM Fields
+  floorplans?: { url: string; label?: string }[];
+  photos?: { url: string; label?: string; position?: number }[];
+  groupedFeatures?: {
+    indoor?: string[];
+    outdoor?: string[];
+    heatingCooling?: string[];
+    eco?: string[];
+  };
+  inspectionsDetailed?: {
+    id?: string;
+    startsAt: string;
+    endsAt: string;
+  }[];
+  agents?: {
+    name: string;
+    email: string;
+    phone: string;
+    role?: string;
+    image?: string;
+  }[];
+  videoUrl?: string;
+  newConstruction?: boolean;
+  houseAndLand?: boolean;
+  yearBuilt?: number | string;
 }
 
 export interface TeamMember {
@@ -92,8 +117,10 @@ export interface EnquiryPayload {
   phone: string;
   propertyId?: string;
   propertyAddress?: string;
-  type: 'general' | 'sales' | 'rentals' | 'inspection_booking';
+  type?: 'general' | 'sales' | 'rentals' | 'inspection_booking';
   message: string;
+  enquiryType?: 'INSPECTION' | 'GENERAL' | 'OFFER' | 'APPRAISAL';
+  listingId?: string;
 }
 
 export interface AppraisalPayload {
@@ -103,9 +130,123 @@ export interface AppraisalPayload {
   address: string;
   suburb: string;
   propertyType: string;
-  bedrooms: string;
-  bathrooms: string;
-  timeframe: string;
+  bedrooms: string | number;
+  bathrooms: string | number;
+  timeframe?: string;
   additionalDetails?: string;
+  ownerName?: string;
+  propertyAddress?: string;
+  comments?: string;
 }
+
+// CRM Live API Schema Types
+export type CrmListingStatus = 'ACTIVE' | 'UNDER_CONTRACT' | 'SOLD';
+export type CrmListingCategory = 'HOUSE' | 'APARTMENT' | 'TOWNHOUSE' | 'VILLA' | 'DUPLEX' | 'VACANT_LAND' | 'ACREAGE';
+export type CrmListingType = 'RESIDENTIAL_SALE' | 'RESIDENTIAL_LAND';
+
+export interface CrmListingFilter {
+  status?: CrmListingStatus | string;
+  category?: CrmListingCategory | string;
+  type?: CrmListingType | string;
+  suburb?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  page?: number;
+  limit?: number;
+}
+
+export interface CrmListing {
+  id: string;
+  listingNumber?: string;
+  heading?: string;
+  shortDescription?: string;
+  address?: {
+    street?: string;
+    suburb?: string;
+    state?: string;
+    postcode?: string;
+    display?: string;
+  };
+  price?: {
+    display?: string;
+    underOffer?: boolean;
+  };
+  specifications?: {
+    bedrooms?: number;
+    bathrooms?: number;
+    carSpaces?: number;
+    buildingSizeSqm?: number;
+    landArea?: number | string;
+    landAreaUnit?: string;
+  };
+  primaryPhoto?: {
+    url?: string;
+    label?: string;
+  };
+  updatedAt?: string;
+}
+
+export interface CrmListingDetail extends CrmListing {
+  description?: string;
+  newConstruction?: boolean;
+  houseAndLand?: boolean;
+  yearBuilt?: number | string;
+  videoUrl?: string;
+  photos?: {
+    url: string;
+    label?: string;
+    position?: number;
+  }[];
+  floorplans?: {
+    url: string;
+    label?: string;
+  }[];
+  features?: {
+    indoor?: string[];
+    outdoor?: string[];
+    heatingCooling?: string[];
+    eco?: string[];
+  };
+  inspections?: {
+    id?: string;
+    startsAt: string;
+    endsAt: string;
+  }[];
+  agents?: {
+    name: string;
+    email: string;
+    phone: string;
+    role?: string;
+    image?: string;
+  }[];
+}
+
+export interface CrmEnquiryPayload {
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  listingId: string;
+  enquiryType: 'INSPECTION' | 'GENERAL' | 'OFFER' | 'APPRAISAL';
+}
+
+export interface CrmAppraisalPayload {
+  ownerName: string;
+  email: string;
+  phone: string;
+  propertyAddress: string;
+  propertyType: string;
+  bedrooms: number;
+  bathrooms: number;
+  comments: string;
+}
+
+export interface CrmWebhookPayload {
+  action: 'listing.published' | 'listing.sold' | 'sync.all';
+  listingId?: string;
+  timestamp: string;
+}
+
 

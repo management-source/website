@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { submitEnquiryToCRM } from '@/lib/crm';
+import { submitCrmEnquiry } from '@/lib/crm';
+import { CrmEnquiryPayload } from '@/types';
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,16 @@ export async function POST(req: Request) {
       );
     }
 
-    const response = await submitEnquiryToCRM(body);
+    const payload: CrmEnquiryPayload = {
+      name: body.name,
+      email: body.email,
+      phone: body.phone || '',
+      message: body.message,
+      listingId: body.listingId || body.propertyId || '',
+      enquiryType: (body.enquiryType || (body.type === 'inspection_booking' ? 'INSPECTION' : 'GENERAL')) as CrmEnquiryPayload['enquiryType'],
+    };
+
+    const response = await submitCrmEnquiry(payload);
     return NextResponse.json(response);
   } catch (err: any) {
     return NextResponse.json(

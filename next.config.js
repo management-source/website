@@ -18,6 +18,10 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'c98d1863e2.sdkmedia.net',
       },
+      {
+        protocol: 'https',
+        hostname: 'crm.donspremier.com.au',
+      },
     ],
   },
 };

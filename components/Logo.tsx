@@ -13,8 +13,8 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
     size === 'sm'
       ? 'h-12 sm:h-14 max-w-[260px]'
       : size === 'lg'
-      ? 'h-20 sm:h-24 lg:h-28 max-w-[540px]'
-      : 'h-16 sm:h-20 lg:h-24 max-w-[340px] sm:max-w-[460px] lg:max-w-[520px]';
+        ? 'h-20 sm:h-24 lg:h-28 max-w-[540px]'
+        : 'h-16 sm:h-20 lg:h-24 max-w-[340px] sm:max-w-[460px] lg:max-w-[520px]';
 
   return (
     <Link

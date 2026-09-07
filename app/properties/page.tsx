@@ -62,7 +62,7 @@ function PropertiesContent() {
     return properties.filter((p) => {
       if (status !== 'all' && p.status !== status) return false;
       if (suburb && !p.address.suburb.toLowerCase().includes(suburb.toLowerCase())) return false;
-      
+
       if (type) {
         const tLower = type.toLowerCase();
         if (tLower === 'residential') {

@@ -14,17 +14,25 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const status = searchParams.get('status') as PropertyStatus | 'all' | null;
+    const category = searchParams.get('category') || undefined;
     const suburb = searchParams.get('suburb') || undefined;
     const type = searchParams.get('type') || undefined;
     const bedrooms = searchParams.get('bedrooms') ? Number(searchParams.get('bedrooms')) : undefined;
+    const bathrooms = searchParams.get('bathrooms') ? Number(searchParams.get('bathrooms')) : undefined;
+    const minPrice = searchParams.get('minPrice') ? Number(searchParams.get('minPrice')) : undefined;
+    const maxPrice = searchParams.get('maxPrice') ? Number(searchParams.get('maxPrice')) : undefined;
     const searchTerm = searchParams.get('search') || undefined;
+    const inspections = searchParams.get('inspections') === 'true';
 
     const properties = await getProperties({
       status: status || undefined,
       suburb,
-      type,
+      type: category || type,
       bedrooms,
+      minPrice,
+      maxPrice,
       searchTerm,
+      inspections,
     });
 
     return NextResponse.json({
@@ -51,7 +59,7 @@ export async function POST(req: Request) {
         revalidatePath('/');
         revalidatePath('/properties');
         revalidatePath('/rentals');
-      } catch {}
+      } catch { }
       return NextResponse.json({
         success: true,
         message: 'All CRM listings cleared successfully.',
@@ -65,7 +73,7 @@ export async function POST(req: Request) {
         revalidatePath('/');
         revalidatePath('/properties');
         revalidatePath('/rentals');
-      } catch {}
+      } catch { }
       return NextResponse.json({
         success: true,
         message: `Bulk synchronized ${body.properties.length} CRM listings.`,
@@ -77,10 +85,10 @@ export async function POST(req: Request) {
     const items: Property[] = Array.isArray(body)
       ? body
       : body.property
-      ? [body.property]
-      : Array.isArray(body.properties)
-      ? body.properties
-      : [body];
+        ? [body.property]
+        : Array.isArray(body.properties)
+          ? body.properties
+          : [body];
 
     for (const item of items) {
       if (!item.title || !item.address) {
@@ -103,7 +111,7 @@ export async function POST(req: Request) {
       revalidatePath('/');
       revalidatePath('/properties');
       revalidatePath('/rentals');
-    } catch {}
+    } catch { }
 
     const updated = getLocalCrmListings();
     return NextResponse.json({
@@ -129,7 +137,7 @@ export async function DELETE(req: Request) {
       try {
         const body = await req.json();
         identifier = body?.id || body?.slug;
-      } catch {}
+      } catch { }
     }
 
     if (!identifier) {
@@ -145,7 +153,7 @@ export async function DELETE(req: Request) {
       revalidatePath('/');
       revalidatePath('/properties');
       revalidatePath('/rentals');
-    } catch {}
+    } catch { }
 
     return NextResponse.json({
       success: true,

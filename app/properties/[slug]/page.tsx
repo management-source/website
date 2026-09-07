@@ -212,6 +212,31 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               </div>
             )}
 
+            {/* Video Walkthrough Banner */}
+            {property.videoUrl && (
+              <div className="bg-knight-950 text-white rounded-2xl p-6 sm:p-8 border border-gold-500/30 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                <div className="space-y-1 text-center sm:text-left">
+                  <span className="text-xs font-bold uppercase tracking-widest text-gold-400">
+                    Virtual Property Experience
+                  </span>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-white">
+                    HD Cinematic Walkthrough Tour
+                  </h3>
+                  <p className="text-xs text-slate-300">
+                    Watch our professionally guided video tour showcasing architectural highlights.
+                  </p>
+                </div>
+                <a
+                  href={property.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-6 py-3 rounded-xl bg-gradient-to-r from-gold-400 to-gold-500 hover:from-gold-300 hover:to-gold-400 text-knight-950 text-xs font-bold uppercase tracking-wider shadow-lg transition-all shrink-0"
+                >
+                  Watch Video Tour
+                </a>
+              </div>
+            )}
+
             {/* Description Card */}
             <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-4">
               <h2 className="font-serif text-xl sm:text-2xl font-bold text-knight-900">
@@ -222,19 +247,123 @@ export default async function PropertyDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Property Features Checklist */}
+            {/* Architectural Floorplans */}
+            {property.floorplans && property.floorplans.length > 0 && (
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <span className="text-xs font-bold uppercase tracking-wider text-gold-600">
+                      Technical Layout
+                    </span>
+                    <h3 className="font-serif text-xl font-bold text-knight-900">
+                      Architectural Floorplans
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {property.floorplans.map((fp, i) => (
+                    <div key={i} className="group relative rounded-xl overflow-hidden border border-slate-200 bg-slate-50 p-2">
+                      <div className="relative aspect-[4/3] w-full rounded-lg overflow-hidden bg-white">
+                        <Image
+                          src={fp.url}
+                          alt={fp.label || `Floorplan ${i + 1}`}
+                          fill
+                          sizes="(max-width: 1024px) 100vw, 50vw"
+                          className="object-contain group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="mt-2 text-center text-xs font-semibold text-knight-900">
+                        {fp.label || `Floorplan ${i + 1}`}
+                      </div>
+                      <a
+                        href={fp.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-1 block text-center text-[11px] text-gold-700 hover:underline font-medium"
+                      >
+                        View High-Resolution Version
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Property Features Checklist (Categorized or Standard) */}
             <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
               <h3 className="font-serif text-xl font-bold text-knight-900 mb-6">
                 Property Features & Inclusions
               </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                {property.features.map((feat, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
-                    <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
-                    <span>{feat}</span>
-                  </div>
-                ))}
-              </div>
+
+              {property.groupedFeatures && Object.keys(property.groupedFeatures).length > 0 ? (
+                <div className="space-y-6">
+                  {property.groupedFeatures.indoor && property.groupedFeatures.indoor.length > 0 && (
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Indoor Features</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {property.groupedFeatures.indoor.map((f, idx) => (
+                          <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {property.groupedFeatures.outdoor && property.groupedFeatures.outdoor.length > 0 && (
+                    <div className="pt-4 border-t border-slate-100">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Outdoor Inclusions</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {property.groupedFeatures.outdoor.map((f, idx) => (
+                          <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {property.groupedFeatures.heatingCooling && property.groupedFeatures.heatingCooling.length > 0 && (
+                    <div className="pt-4 border-t border-slate-100">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Climate & Comfort</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {property.groupedFeatures.heatingCooling.map((f, idx) => (
+                          <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {property.groupedFeatures.eco && property.groupedFeatures.eco.length > 0 && (
+                    <div className="pt-4 border-t border-slate-100">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Eco & Sustainability</h4>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {property.groupedFeatures.eco.map((f, idx) => (
+                          <div key={idx} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                            <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0" />
+                            <span>{f}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  {property.features.map((feat, i) => (
+                    <div key={i} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-gold-600 shrink-0 mt-0.5" />
+                      <span>{feat}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Mortgage Calculator */}

@@ -43,18 +43,34 @@ export default function EnquiryForm({
     setError(null);
 
     try {
-      const crmUrl = process.env.NEXT_PUBLIC_CRM_API_BASE_URL;
-      if (crmUrl && !crmUrl.includes('yourdomain')) {
-        await fetch(`${crmUrl}/enquiries`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
-        });
-      } else {
-        await new Promise((res) => setTimeout(res, 700));
+      // Map enquiryType to CRM specification
+      let crmEnquiryType: 'INSPECTION' | 'GENERAL' | 'OFFER' | 'APPRAISAL' = 'GENERAL';
+      if (formData.enquiryType) {
+        crmEnquiryType = formData.enquiryType;
+      } else if (formData.type === 'inspection_booking') {
+        crmEnquiryType = 'INSPECTION';
       }
-      setSubmitted(true);
-    } catch (err) {
+
+      const res = await fetch('/api/enquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          message: formData.message,
+          listingId: formData.listingId || propertyId || '',
+          enquiryType: crmEnquiryType,
+        }),
+      });
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || 'Unable to submit enquiry. Please try again or call us directly.');
+      }
+    } catch {
       setSubmitted(true);
     } finally {
       setLoading(false);
@@ -168,15 +184,15 @@ export default function EnquiryForm({
             Enquiry Type
           </label>
           <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
+            name="enquiryType"
+            value={formData.enquiryType || (formData.type === 'inspection_booking' ? 'INSPECTION' : 'GENERAL')}
+            onChange={(e) => setFormData({ ...formData, enquiryType: e.target.value as any })}
             className="w-full px-3 py-2 text-xs sm:text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-gold-500 focus:outline-none bg-white"
           >
-            <option value="general">General Enquiry</option>
-            <option value="sales">Sales & Buying</option>
-            <option value="rentals">Leasing & Tenancy</option>
-            <option value="inspection_booking">Book Private Inspection</option>
+            <option value="GENERAL">General Enquiry</option>
+            <option value="INSPECTION">Book Property Inspection</option>
+            <option value="OFFER">Submit Pre-Auction / Purchase Offer</option>
+            <option value="APPRAISAL">Request Market Appraisal</option>
           </select>
         </div>
 
