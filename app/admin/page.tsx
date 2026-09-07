@@ -21,6 +21,15 @@ import {
   Trash2,
   UploadCloud,
   Code2,
+  Key,
+  Eye,
+  EyeOff,
+  Copy,
+  Check,
+  Server,
+  Link2,
+  Save,
+  SlidersHorizontal,
 } from 'lucide-react';
 import Logo from '@/components/Logo';
 import { TEAM_MEMBERS, AGENCY_INFO } from '@/data/content';
@@ -40,6 +49,101 @@ export default function AdminPage() {
   const [pushStatus, setPushStatus] = useState<string | null>(null);
   const [showJsonTool, setShowJsonTool] = useState(false);
 
+  // Live CRM Configuration State
+  const [crmBaseUrl, setCrmBaseUrl] = useState('https://crm.donspremier.com.au');
+  const [crmAgencySlug, setCrmAgencySlug] = useState('dons-premier-estate-agents');
+  const [crmApiKey, setCrmApiKey] = useState('');
+  const [crmWebhookSecret, setCrmWebhookSecret] = useState('');
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showSecret, setShowSecret] = useState(false);
+  const [savingConfig, setSavingConfig] = useState(false);
+  const [testingConnection, setTestingConnection] = useState(false);
+  const [configMsg, setConfigMsg] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
+  const [copiedWebhookUrl, setCopiedWebhookUrl] = useState(false);
+
+  const fetchCrmConfig = async () => {
+    try {
+      const res = await fetch('/api/admin/crm-config');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.config) {
+          setCrmBaseUrl(data.config.baseUrl || 'https://crm.donspremier.com.au');
+          setCrmAgencySlug(data.config.agencySlug || 'dons-premier-estate-agents');
+          setCrmApiKey(data.config.apiKey || '');
+          setCrmWebhookSecret(data.config.webhookSecret || '');
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching CRM config:', err);
+    }
+  };
+
+  const handleSaveConfig = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSavingConfig(true);
+    setConfigMsg(null);
+    try {
+      const res = await fetch('/api/admin/crm-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          baseUrl: crmBaseUrl,
+          agencySlug: crmAgencySlug,
+          apiKey: crmApiKey,
+          webhookSecret: crmWebhookSecret,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setConfigMsg({ text: 'CRM API Key, Webhook Secret, and Endpoints saved successfully!', type: 'success' });
+        fetchListings();
+      } else {
+        setConfigMsg({ text: data.error || 'Failed to save configuration.', type: 'error' });
+      }
+    } catch (err: any) {
+      setConfigMsg({ text: err.message || 'Error saving configuration.', type: 'error' });
+    } finally {
+      setSavingConfig(false);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTestingConnection(true);
+    setConfigMsg(null);
+    try {
+      const res = await fetch('/api/admin/crm-config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'test_connection',
+          baseUrl: crmBaseUrl,
+          agencySlug: crmAgencySlug,
+          apiKey: crmApiKey,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setConfigMsg({ text: data.message || 'Connection verified successfully!', type: 'success' });
+        fetchListings();
+      } else {
+        setConfigMsg({ text: data.error || 'Connection test failed.', type: 'error' });
+      }
+    } catch (err: any) {
+      setConfigMsg({ text: `Connection error: ${err.message}`, type: 'error' });
+    } finally {
+      setTestingConnection(false);
+    }
+  };
+
+  const copyWebhookUrl = () => {
+    const url = typeof window !== 'undefined'
+      ? `${window.location.origin}/api/webhook/revalidate`
+      : 'https://donspremier.com.au/api/webhook/revalidate';
+    navigator.clipboard.writeText(url);
+    setCopiedWebhookUrl(true);
+    setTimeout(() => setCopiedWebhookUrl(false), 2500);
+  };
+
   const fetchListings = async () => {
     try {
       setLoadingListings(true);
@@ -58,6 +162,7 @@ export default function AdminPage() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchListings();
+      fetchCrmConfig();
     }
   }, [isAuthenticated]);
 
@@ -377,6 +482,220 @@ export default function AdminPage() {
               Within 1 Business Day
             </div>
           </div>
+        </div>
+
+        {/* Live CRM API & Webhook Credentials Settings */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6 pb-6 border-b border-slate-100">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-50 border border-gold-300 text-gold-900 text-xs font-bold uppercase tracking-wider mb-2">
+                <Key className="w-3 h-3 text-gold-600" />
+                <span>Live CRM Connection</span>
+              </div>
+              <h2 className="font-serif text-xl sm:text-2xl font-bold text-knight-900">
+                Premier Hub CRM API & Webhook Credentials
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1 max-w-2xl">
+                Configure your live Premier Hub CRM API endpoint, secure bearer token, and webhook synchronization secret. These credentials dynamically link your website directly to your CRM.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleTestConnection}
+              disabled={testingConnection}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-knight-900 text-gold-300 hover:bg-black text-xs sm:text-sm font-bold transition-all shadow-sm shrink-0 disabled:opacity-60"
+            >
+              <RefreshCw className={`w-4 h-4 ${testingConnection ? 'animate-spin' : ''}`} />
+              <span>{testingConnection ? 'Testing Connection...' : 'Test CRM Connection'}</span>
+            </button>
+          </div>
+
+          {configMsg && (
+            <div
+              className={`mb-6 p-4 rounded-xl text-xs sm:text-sm flex items-start gap-3 ${
+                configMsg.type === 'success'
+                  ? 'bg-emerald-50 border border-emerald-200 text-emerald-900'
+                  : 'bg-red-50 border border-red-200 text-red-900'
+              }`}
+            >
+              {configMsg.type === 'success' ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+              ) : (
+                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+              )}
+              <div className="flex-1 font-medium">{configMsg.text}</div>
+            </div>
+          )}
+
+          <form onSubmit={handleSaveConfig} className="space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {/* CRM API Base URL */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Server className="w-3.5 h-3.5 text-gold-600" />
+                  <span>CRM API Base URL</span>
+                </label>
+                <input
+                  type="url"
+                  value={crmBaseUrl}
+                  onChange={(e) => setCrmBaseUrl(e.target.value)}
+                  placeholder="https://crm.donspremier.com.au"
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 font-mono"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Base domain of your Premier Hub CRM instance without trailing slash.
+                </p>
+              </div>
+
+              {/* Agency Slug */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center gap-1.5">
+                  <Building className="w-3.5 h-3.5 text-gold-600" />
+                  <span>Agency Slug</span>
+                </label>
+                <input
+                  type="text"
+                  value={crmAgencySlug}
+                  onChange={(e) => setCrmAgencySlug(e.target.value)}
+                  placeholder="dons-premier-estate-agents"
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 font-mono"
+                />
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Your agency identifier in Premier Hub (e.g. dons-premier-estate-agents).
+                </p>
+              </div>
+
+              {/* CRM API Key */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Key className="w-3.5 h-3.5 text-gold-600" />
+                    <span>CRM API Key / Bearer Token</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="text-slate-500 hover:text-slate-800 text-[11px] font-medium flex items-center gap-1"
+                  >
+                    {showApiKey ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showApiKey ? 'Hide' : 'Reveal'}</span>
+                  </button>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={crmApiKey}
+                    onChange={(e) => setCrmApiKey(e.target.value)}
+                    placeholder="Enter CRM API Key or Bearer Token"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 font-mono pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showApiKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Passed in Authorization: Bearer header when querying listings and syncing leads.
+                </p>
+              </div>
+
+              {/* Webhook Secret */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Lock className="w-3.5 h-3.5 text-gold-600" />
+                    <span>CRM Webhook Secret</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowSecret(!showSecret)}
+                    className="text-slate-500 hover:text-slate-800 text-[11px] font-medium flex items-center gap-1"
+                  >
+                    {showSecret ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+                    <span>{showSecret ? 'Hide' : 'Reveal'}</span>
+                  </button>
+                </label>
+                <div className="relative">
+                  <input
+                    type={showSecret ? 'text' : 'password'}
+                    value={crmWebhookSecret}
+                    onChange={(e) => setCrmWebhookSecret(e.target.value)}
+                    placeholder="Enter Webhook Shared Secret"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-gold-500 font-mono pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowSecret(!showSecret)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    {showSecret ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Validated against the X-Webhook-Secret header when your CRM sends push events.
+                </p>
+              </div>
+            </div>
+
+            {/* Webhook Endpoint Box for easy copying into CRM settings */}
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Link2 className="w-3.5 h-3.5 text-gold-600" />
+                    <span>Instant Webhook Synchronization URL</span>
+                  </div>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Paste this URL into your Premier Hub CRM Webhook Notification Settings:
+                  </p>
+                  <code className="inline-block mt-2 font-mono text-xs font-semibold text-knight-900 bg-white px-3 py-1.5 rounded-lg border border-slate-200 break-all">
+                    {typeof window !== 'undefined'
+                      ? `${window.location.origin}/api/webhook/revalidate`
+                      : 'https://donspremier.com.au/api/webhook/revalidate'}
+                  </code>
+                </div>
+                <button
+                  type="button"
+                  onClick={copyWebhookUrl}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-white border border-slate-300 hover:bg-slate-100 text-xs font-bold text-slate-800 transition-colors shadow-sm self-start sm:self-center shrink-0"
+                >
+                  {copiedWebhookUrl ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-700 font-semibold">Copied URL</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-slate-600" />
+                      <span>Copy Webhook URL</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Action Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+              <div className="text-xs text-slate-500">
+                Credentials are encrypted and saved securely. Overrides local defaults immediately.
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={savingConfig}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-600 text-knight-950 text-xs sm:text-sm font-bold transition-all shadow-md hover:shadow-lg disabled:opacity-60"
+                >
+                  <Save className={`w-4 h-4 ${savingConfig ? 'animate-spin' : ''}`} />
+                  <span>{savingConfig ? 'Saving Settings...' : 'Save CRM Configuration'}</span>
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
 
         {/* CRM Direct Push & Sync Hub */}

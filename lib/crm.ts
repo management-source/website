@@ -13,11 +13,71 @@ import {
   CrmAppraisalPayload,
 } from '@/types';
 
-const CRM_API_BASE_URL = (process.env.CRM_API_BASE_URL || 'https://crm.donspremier.com.au').replace(/\/+$/, '');
-const CRM_API_KEY = process.env.CRM_API_KEY || '';
-const CRM_AGENCY_SLUG = process.env.CRM_AGENCY_SLUG || 'dons-premier-estate-agents';
-
 const CRM_STORAGE_FILE = path.join(process.cwd(), 'data', 'crm_listings.json');
+const CRM_CONFIG_FILE = path.join(process.cwd(), 'data', 'crm_config.json');
+
+export interface CrmConfig {
+  baseUrl: string;
+  agencySlug: string;
+  apiKey: string;
+  webhookSecret: string;
+}
+
+/**
+ * Returns current CRM config, reading from data/crm_config.json with fallback to environment variables.
+ */
+export function getCrmConfig(): CrmConfig {
+  let baseUrl = process.env.CRM_API_BASE_URL || 'https://crm.donspremier.com.au';
+  let agencySlug = process.env.CRM_AGENCY_SLUG || 'dons-premier-estate-agents';
+  let apiKey = process.env.CRM_API_KEY || '';
+  let webhookSecret = process.env.CRM_WEBHOOK_SECRET || '';
+
+  try {
+    if (fs.existsSync(CRM_CONFIG_FILE)) {
+      const content = fs.readFileSync(CRM_CONFIG_FILE, 'utf8');
+      const clean = content.replace(/^\uFEFF/, '').trim();
+      if (clean) {
+        const data = JSON.parse(clean);
+        if (data.baseUrl) baseUrl = data.baseUrl;
+        if (data.agencySlug) agencySlug = data.agencySlug;
+        if (data.apiKey) apiKey = data.apiKey;
+        if (data.webhookSecret) webhookSecret = data.webhookSecret;
+      }
+    }
+  } catch (err) {
+    console.error('Error reading CRM config file:', err);
+  }
+
+  return {
+    baseUrl: baseUrl.replace(/\/+$/, ''),
+    agencySlug,
+    apiKey,
+    webhookSecret,
+  };
+}
+
+/**
+ * Save new CRM credentials to data/crm_config.json for dynamic runtime reconfiguration.
+ */
+export function saveCrmConfig(config: Partial<CrmConfig>): CrmConfig {
+  const current = getCrmConfig();
+  const updated: CrmConfig = {
+    baseUrl: (config.baseUrl || current.baseUrl).replace(/\/+$/, ''),
+    agencySlug: config.agencySlug || current.agencySlug,
+    apiKey: config.apiKey !== undefined ? config.apiKey : current.apiKey,
+    webhookSecret: config.webhookSecret !== undefined ? config.webhookSecret : current.webhookSecret,
+  };
+
+  try {
+    const dir = path.dirname(CRM_CONFIG_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(CRM_CONFIG_FILE, JSON.stringify(updated, null, 2), 'utf8');
+  } catch (err) {
+    console.error('Error saving CRM config:', err);
+  }
+
+  return updated;
+}
 
 /**
  * Normalizes image URLs from CRM API.
@@ -30,7 +90,8 @@ export function normalizeCrmImageUrl(url?: string): string {
   if (url.startsWith('http://') || url.startsWith('https://')) {
     return url;
   }
-  return `${CRM_API_BASE_URL}${url.startsWith('/') ? '' : '/'}${url}`;
+  const { baseUrl } = getCrmConfig();
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 }
 
 /**
@@ -295,7 +356,8 @@ export function mapCrmListingToProperty(crm: any): Property {
 export async function fetchCrmListings(
   filters?: CrmListingFilter
 ): Promise<{ listings: Property[]; total: number; page: number; totalPages: number }> {
-  const isKeyConfigured = CRM_API_KEY && !CRM_API_KEY.includes('your_api_key');
+  const { baseUrl: CRM_API_BASE_URL, agencySlug: CRM_AGENCY_SLUG, apiKey: CRM_API_KEY } = getCrmConfig();
+  const isKeyConfigured = Boolean(CRM_API_KEY && !CRM_API_KEY.includes('your_api_key'));
 
   if (isKeyConfigured) {
     try {
@@ -362,7 +424,8 @@ export async function fetchCrmListings(
  * GET ${CRM_API_BASE_URL}/api/v1/public/${CRM_AGENCY_SLUG}/listings/${listingId}
  */
 export async function fetchCrmListingById(listingId: string): Promise<Property | null> {
-  const isKeyConfigured = CRM_API_KEY && !CRM_API_KEY.includes('your_api_key');
+  const { baseUrl: CRM_API_BASE_URL, agencySlug: CRM_AGENCY_SLUG, apiKey: CRM_API_KEY } = getCrmConfig();
+  const isKeyConfigured = Boolean(CRM_API_KEY && !CRM_API_KEY.includes('your_api_key'));
 
   if (isKeyConfigured && listingId) {
     try {
@@ -507,7 +570,8 @@ export async function submitCrmEnquiry(payload: CrmEnquiryPayload): Promise<{
   message?: string;
   data?: any;
 }> {
-  const isKeyConfigured = CRM_API_KEY && !CRM_API_KEY.includes('your_api_key');
+  const { baseUrl: CRM_API_BASE_URL, agencySlug: CRM_AGENCY_SLUG, apiKey: CRM_API_KEY } = getCrmConfig();
+  const isKeyConfigured = Boolean(CRM_API_KEY && !CRM_API_KEY.includes('your_api_key'));
 
   if (isKeyConfigured) {
     try {
@@ -563,7 +627,8 @@ export async function submitCrmAppraisal(payload: CrmAppraisalPayload): Promise<
   message?: string;
   data?: any;
 }> {
-  const isKeyConfigured = CRM_API_KEY && !CRM_API_KEY.includes('your_api_key');
+  const { baseUrl: CRM_API_BASE_URL, agencySlug: CRM_AGENCY_SLUG, apiKey: CRM_API_KEY } = getCrmConfig();
+  const isKeyConfigured = Boolean(CRM_API_KEY && !CRM_API_KEY.includes('your_api_key'));
 
   if (isKeyConfigured) {
     try {

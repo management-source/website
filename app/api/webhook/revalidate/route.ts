@@ -1,10 +1,11 @@
 import { NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
+import { getCrmConfig } from '@/lib/crm';
 import { CrmWebhookPayload } from '@/types';
 
 export async function POST(req: Request) {
   try {
-    const configuredSecret = process.env.CRM_WEBHOOK_SECRET;
+    const { webhookSecret: configuredSecret } = getCrmConfig();
     const incomingSecret = req.headers.get('x-webhook-secret') || req.headers.get('X-Webhook-Secret');
 
     // Return 401 if secret verification fails

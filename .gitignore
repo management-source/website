@@ -19,6 +19,7 @@ next-env.d.ts
 # Environment variables & secrets
 .env*.local
 .env
+data/crm_config.json
 
 # Debug logs
 npm-debug.log*
