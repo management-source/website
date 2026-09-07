@@ -9,7 +9,12 @@ interface LogoProps {
 }
 
 export default function Logo({ className = '', size = 'md' }: LogoProps) {
-  const heightClass = size === 'sm' ? 'h-9 sm:h-10' : size === 'lg' ? 'h-14 sm:h-16' : 'h-11 sm:h-12';
+  const heightClass =
+    size === 'sm'
+      ? 'h-12 sm:h-14 max-w-[260px]'
+      : size === 'lg'
+      ? 'h-20 sm:h-24 lg:h-28 max-w-[540px]'
+      : 'h-16 sm:h-20 lg:h-24 max-w-[340px] sm:max-w-[460px] lg:max-w-[520px]';
 
   return (
     <Link
@@ -21,10 +26,10 @@ export default function Logo({ className = '', size = 'md' }: LogoProps) {
         <Image
           src="/images/dons-premier-banner.jpg"
           alt="Dons Premier Estate Agents - The Knights of Real Estate"
-          width={320}
-          height={80}
+          width={520}
+          height={130}
           priority
-          className="h-full w-auto object-contain rounded-md"
+          className="h-full w-auto object-contain rounded-lg shadow-sm"
         />
       </div>
     </Link>

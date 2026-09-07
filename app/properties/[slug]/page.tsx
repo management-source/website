@@ -22,12 +22,13 @@ import { getPropertyBySlug, getProperties } from '@/lib/crm';
 import MortgageCalculator from '@/components/MortgageCalculator';
 import EnquiryForm from '@/components/EnquiryForm';
 import PropertyCard from '@/components/PropertyCard';
-import { PROPERTIES } from '@/data/content';
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
-  return PROPERTIES.map((p) => ({
+  const properties = await getProperties();
+  return properties.map((p) => ({
     slug: p.slug,
   }));
 }

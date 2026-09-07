@@ -48,16 +48,17 @@ export default function Navbar() {
         }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between min-h-[5.5rem] sm:min-h-[6.5rem] py-2">
           {/* Logo */}
-          <Logo lightMode={true} />
+          <Logo lightMode={true} size="md" />
 
           {/* Desktop Navigation Links */}
           <div className="hidden lg:flex items-center space-x-1">
             <Link
               href="/"
-              className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname === '/' ? 'text-gold-400 bg-knight-800/80' : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-                }`}
+              className={`px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                pathname === '/' ? 'text-gold-400 bg-knight-800/80' : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
+              }`}
             >
               Home
             </Link>
@@ -69,47 +70,60 @@ export default function Navbar() {
               onMouseLeave={() => setSalesDropdown(false)}
             >
               <button
-                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname.startsWith('/properties') && !pathname.includes('status=for_rent')
+                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  pathname.startsWith('/properties') && !pathname.includes('status=for_rent')
                     ? 'text-gold-400 bg-knight-800/80'
                     : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-                  }`}
+                }`}
               >
                 <span>Sales</span>
                 <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
 
               {salesDropdown && (
-                <div className="absolute top-full left-0 w-60 pt-2 shadow-2xl">
+                <div className="absolute top-full left-0 w-64 pt-2 shadow-2xl z-50">
                   <div className="bg-knight-850 rounded-xl ring-1 ring-gold-500/20 shadow-2xl p-2 border border-knight-700">
                     <Link
-                      href="/properties?status=for_sale"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      href="/properties?status=for_sale&type=Residential"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
                     >
-                      <Home className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Residential for Sale</div>
-                        <div className="text-[11px] text-slate-400">Current South-East listings</div>
-                      </div>
+                      <Home className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Residential for sale</span>
+                    </Link>
+                    <Link
+                      href="/properties?status=for_sale&type=Land"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <Building className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Land for Sale</span>
+                    </Link>
+                    <Link
+                      href="/properties?status=for_sale&type=Commercial"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <Building className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Commercial For Sale</span>
                     </Link>
                     <Link
                       href="/properties?status=sold"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
                     >
-                      <TrendingUp className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Recently Sold</div>
-                        <div className="text-[11px] text-slate-400">Our track record & results</div>
-                      </div>
+                      <TrendingUp className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Recently sold</span>
+                    </Link>
+                    <Link
+                      href="/properties?inspections=true"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <FileCheck className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Upcoming Inspections</span>
                     </Link>
                     <Link
                       href="/appraisal"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors border-t border-knight-700/60 mt-1 pt-2"
                     >
-                      <FileCheck className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Property Appraisal</div>
-                        <div className="text-[11px] text-slate-400">Free valuation & market report</div>
-                      </div>
+                      <FileCheck className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Appraisal</span>
                     </Link>
                   </div>
                 </div>
@@ -123,47 +137,60 @@ export default function Navbar() {
               onMouseLeave={() => setRentalsDropdown(false)}
             >
               <button
-                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${pathname.startsWith('/rentals') || pathname.includes('status=for_rent')
+                className={`flex items-center gap-1 px-3.5 py-2 text-sm font-medium rounded-lg transition-colors ${
+                  pathname.startsWith('/rentals') || pathname.includes('status=for_rent')
                     ? 'text-gold-400 bg-knight-800/80'
                     : 'text-slate-200 hover:text-white hover:bg-knight-800/50'
-                  }`}
+                }`}
               >
                 <span>Rentals</span>
                 <ChevronDown className="w-4 h-4 opacity-70" />
               </button>
 
               {rentalsDropdown && (
-                <div className="absolute top-full left-0 w-64 pt-2 shadow-2xl">
+                <div className="absolute top-full left-0 w-64 pt-2 shadow-2xl z-50">
                   <div className="bg-knight-850 rounded-xl ring-1 ring-gold-500/20 shadow-2xl p-2 border border-knight-700">
                     <Link
-                      href="/rentals"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      href="/properties?status=for_rent"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
                     >
-                      <Key className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Properties for Rent</div>
-                        <div className="text-[11px] text-slate-400">Available rental listings</div>
-                      </div>
+                      <Key className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>For Rent</span>
+                    </Link>
+                    <Link
+                      href="/rentals?inspections=true"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <FileCheck className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Upcoming Rental Inspections</span>
+                    </Link>
+                    <Link
+                      href="/rentals?status=leased"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <TrendingUp className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Recently Leased</span>
+                    </Link>
+                    <Link
+                      href="/rentals#application"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                    >
+                      <FileCheck className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Tenancy Application</span>
                     </Link>
                     <Link
                       href="/maintenance"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
                     >
-                      <Wrench className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Maintenance Request</div>
-                        <div className="text-[11px] text-slate-400">Prompt repairs & compliance</div>
-                      </div>
+                      <Wrench className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Maintenance Request</span>
                     </Link>
                     <Link
-                      href="/appraisal"
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors"
+                      href="/properties?status=for_rent&type=Commercial"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-slate-200 hover:bg-knight-800 hover:text-gold-300 transition-colors border-t border-knight-700/60 mt-1 pt-2"
                     >
-                      <Building className="w-4 h-4 text-gold-400" />
-                      <div>
-                        <div className="font-medium">Rental Appraisal</div>
-                        <div className="text-[11px] text-slate-400">Maximize your rental yield</div>
-                      </div>
+                      <Building className="w-4 h-4 text-gold-400 shrink-0" />
+                      <span>Commercial for Lease</span>
                     </Link>
                   </div>
                 </div>
@@ -234,63 +261,127 @@ export default function Navbar() {
 
       {/* Mobile Menu Drawer */}
       {isOpen && (
-        <div className="lg:hidden bg-knight-950 border-b border-knight-800 px-4 pt-2 pb-6 space-y-2 shadow-2xl">
+        <div className="lg:hidden bg-knight-950 border-b border-knight-800 px-4 pt-3 pb-8 space-y-3 shadow-2xl max-h-[85vh] overflow-y-auto">
           <Link
             href="/"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
+            className="block px-3 py-2 rounded-lg text-sm font-semibold text-white hover:bg-knight-850 hover:text-gold-300"
           >
             Home
           </Link>
-          <Link
-            href="/properties?status=for_sale"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Properties for Sale
-          </Link>
-          <Link
-            href="/properties?status=sold"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Recently Sold Properties
-          </Link>
-          <Link
-            href="/rentals"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Rental Properties
-          </Link>
-          <Link
-            href="/maintenance"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Tenant Maintenance
-          </Link>
-          <Link
-            href="/appraisal"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-gold-400 hover:bg-knight-850"
-          >
-            Free Market Appraisal
-          </Link>
-          <Link
-            href="/about"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            About Dons Premier & The Knight Story
-          </Link>
-          <Link
-            href="/team"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Our Team
-          </Link>
-          <Link
-            href="/contact"
-            className="block px-3 py-2.5 rounded-md text-base font-medium text-slate-200 hover:bg-knight-850 hover:text-gold-300"
-          >
-            Contact & Office Hubs
-          </Link>
 
-          <div className="pt-4 border-t border-knight-800 flex flex-col gap-2">
+          {/* Sales Section */}
+          <div className="pt-2 border-t border-knight-800/80">
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-gold-400">
+              Sales
+            </span>
+            <div className="mt-1 space-y-1 pl-2">
+              <Link
+                href="/properties?status=for_sale&type=Residential"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Residential for sale
+              </Link>
+              <Link
+                href="/properties?status=for_sale&type=Land"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Land for Sale
+              </Link>
+              <Link
+                href="/properties?status=for_sale&type=Commercial"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Commercial For Sale
+              </Link>
+              <Link
+                href="/properties?status=sold"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Recently sold
+              </Link>
+              <Link
+                href="/properties?inspections=true"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Upcoming Inspections
+              </Link>
+              <Link
+                href="/appraisal"
+                className="block px-3 py-1.5 text-xs font-semibold text-gold-400 hover:text-gold-300"
+              >
+                Appraisal
+              </Link>
+            </div>
+          </div>
+
+          {/* Rentals Section */}
+          <div className="pt-2 border-t border-knight-800/80">
+            <span className="px-3 text-[11px] font-bold uppercase tracking-wider text-gold-400">
+              Rentals
+            </span>
+            <div className="mt-1 space-y-1 pl-2">
+              <Link
+                href="/properties?status=for_rent"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                For Rent
+              </Link>
+              <Link
+                href="/rentals?inspections=true"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Upcoming Rental Inspections
+              </Link>
+              <Link
+                href="/rentals?status=leased"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Recently Leased
+              </Link>
+              <Link
+                href="/rentals#application"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Tenancy Application
+              </Link>
+              <Link
+                href="/maintenance"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Maintenance Request
+              </Link>
+              <Link
+                href="/properties?status=for_rent&type=Commercial"
+                className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+              >
+                Commercial for Lease
+              </Link>
+            </div>
+          </div>
+
+          {/* Agency links */}
+          <div className="pt-2 border-t border-knight-800/80 space-y-1">
+            <Link
+              href="/about"
+              className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+            >
+              About Us
+            </Link>
+            <Link
+              href="/team"
+              className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+            >
+              Our Team
+            </Link>
+            <Link
+              href="/contact"
+              className="block px-3 py-1.5 text-xs text-slate-300 hover:text-gold-300"
+            >
+              Contact & Offices
+            </Link>
+          </div>
+
+          <div className="pt-3 border-t border-knight-800 flex flex-col gap-2">
             <a
               href="tel:0390710280"
               className="flex items-center justify-center gap-2 py-3 text-sm font-semibold text-white bg-knight-850 rounded-lg border border-knight-700"

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import {
   ShieldCheck,
@@ -17,9 +17,14 @@ import {
   Phone,
   Mail,
   Home,
+  PlusCircle,
+  Trash2,
+  UploadCloud,
+  Code2,
 } from 'lucide-react';
 import Logo from '@/components/Logo';
-import { PROPERTIES, TEAM_MEMBERS, AGENCY_INFO } from '@/data/content';
+import { TEAM_MEMBERS, AGENCY_INFO } from '@/data/content';
+import { Property } from '@/types';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,6 +33,33 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null);
   const [revalidating, setRevalidating] = useState(false);
   const [revalidateMsg, setRevalidateMsg] = useState<string | null>(null);
+
+  const [listings, setListings] = useState<Property[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
+  const [jsonInput, setJsonInput] = useState('');
+  const [pushStatus, setPushStatus] = useState<string | null>(null);
+  const [showJsonTool, setShowJsonTool] = useState(false);
+
+  const fetchListings = async () => {
+    try {
+      setLoadingListings(true);
+      const res = await fetch('/api/properties');
+      if (res.ok) {
+        const data = await res.json();
+        setListings(data.properties || []);
+      }
+    } catch (err) {
+      console.error('Error loading CRM listings:', err);
+    } finally {
+      setLoadingListings(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchListings();
+    }
+  }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,6 +72,114 @@ export default function AdminPage() {
       setError(null);
     } else {
       setError('Invalid credentials. Hint: admin@donspremier.com.au / PremierKnight2026!');
+    }
+  };
+
+  const handlePushListingJson = async () => {
+    try {
+      setPushStatus(null);
+      const parsed = JSON.parse(jsonInput);
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(parsed),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPushStatus(`Success: ${data.message}`);
+        fetchListings();
+        setJsonInput('');
+      } else {
+        setPushStatus(`Error: ${data.error}`);
+      }
+    } catch (e: any) {
+      setPushStatus(`JSON Error: ${e.message}`);
+    }
+  };
+
+  const handleInjectSample = async () => {
+    try {
+      setPushStatus(null);
+      const sample = {
+        title: '24 Coral-Pea Way',
+        slug: '24-coral-pea-way-cranbourne-west',
+        headline: 'Prestigious Family Residence in Cranbourne West',
+        description: 'Immaculately presented contemporary home situated in an elite residential pocket.',
+        price: '$850,000 - $920,000',
+        priceNumeric: 885000,
+        status: 'for_sale',
+        type: 'House',
+        bedrooms: 4,
+        bathrooms: 2,
+        carSpaces: 2,
+        landSize: '512 sqm',
+        address: {
+          street: '24 Coral-Pea Way',
+          suburb: 'Cranbourne West',
+          state: 'VIC',
+          postcode: '3977',
+          fullAddress: '24 Coral-Pea Way, Cranbourne West VIC 3977',
+        },
+        features: ['Solar Panels', 'Ducted Heating', 'Evaporative Cooling', 'Double Garage', 'Alfresco'],
+        images: [
+          'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80',
+          'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=80',
+        ],
+        agent: {
+          name: 'Lushan Dons',
+          title: 'Licensed Estate Agent & Director',
+          phone: '0401 849 767',
+          email: 'lushan@donspremier.com.au',
+          image: '/images/team/lushan-dons.jpg',
+        },
+        inspectionTimes: ['Saturday 11:00 AM - 11:30 AM'],
+      };
+
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(sample),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setPushStatus(`Sample listing pushed successfully!`);
+        fetchListings();
+      } else {
+        setPushStatus(`Failed: ${data.error}`);
+      }
+    } catch (e: any) {
+      setPushStatus(`Error: ${e.message}`);
+    }
+  };
+
+  const handleDeleteListing = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this listing from the live website?')) return;
+    try {
+      const res = await fetch(`/api/properties?id=${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        fetchListings();
+      }
+    } catch (e) {
+      console.error('Failed to delete listing:', e);
+    }
+  };
+
+  const handleClearAll = async () => {
+    if (!confirm('Are you sure you want to remove ALL listings from the website?')) return;
+    try {
+      const res = await fetch('/api/properties', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'clear_all' }),
+      });
+      if (res.ok) {
+        fetchListings();
+        setPushStatus('All listings cleared successfully.');
+      }
+    } catch (e) {
+      console.error('Failed to clear listings:', e);
     }
   };
 
@@ -167,7 +307,7 @@ export default function AdminPage() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleRevalidate}
               disabled={revalidating}
@@ -197,13 +337,13 @@ export default function AdminPage() {
         {/* Status & KPIs */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-            <span className="text-xs uppercase font-bold text-slate-400">Total Portfolio</span>
+            <span className="text-xs uppercase font-bold text-slate-400">Total Live Listings</span>
             <div className="text-3xl font-bold text-knight-900 mt-1 font-serif">
-              {PROPERTIES.length}
+              {listings.length}
             </div>
             <div className="text-xs text-emerald-600 font-semibold mt-1 flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Live on Site & ISR</span>
+              <span>Connected via CRM</span>
             </div>
           </div>
 
@@ -219,12 +359,12 @@ export default function AdminPage() {
 
           <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
             <span className="text-xs uppercase font-bold text-slate-400">CRM Endpoint</span>
-            <div className="text-sm font-bold text-knight-900 mt-2 font-mono truncate">
-              Premier Hub REST
+            <div className="text-xs font-bold text-knight-900 mt-2 font-mono truncate">
+              POST /api/properties
             </div>
             <div className="text-xs text-gold-700 font-semibold mt-1 flex items-center gap-1">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Zero-Downtime Fallback Active</span>
+              <span>Direct Push Webhook Ready</span>
             </div>
           </div>
 
@@ -239,6 +379,82 @@ export default function AdminPage() {
           </div>
         </div>
 
+        {/* CRM Direct Push & Sync Hub */}
+        <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-gold-600">
+                Integration Control
+              </span>
+              <h2 className="font-serif text-xl font-bold text-knight-900">
+                Premier Hub CRM Direct Push & Sync
+              </h2>
+              <p className="text-xs text-slate-600 mt-1">
+                Push property listings directly from your external CRM via REST webhook or inject JSON manually.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={handleInjectSample}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gold-50 border border-gold-300 text-gold-900 text-xs font-bold hover:bg-gold-100 transition-colors"
+              >
+                <PlusCircle className="w-3.5 h-3.5 text-gold-700" />
+                <span>Inject Sample Listing</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowJsonTool(!showJsonTool)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 text-xs font-bold hover:bg-slate-200 transition-colors"
+              >
+                <Code2 className="w-3.5 h-3.5" />
+                <span>{showJsonTool ? 'Hide JSON Push Tool' : 'Open JSON Push Tool'}</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs font-bold hover:bg-red-100 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Clear All Listings</span>
+              </button>
+            </div>
+          </div>
+
+          {pushStatus && (
+            <div className={`mb-4 p-3 rounded-xl text-xs flex items-center gap-2 ${pushStatus.startsWith('Error') || pushStatus.startsWith('Failed') ? 'bg-red-50 border border-red-200 text-red-700' : 'bg-emerald-50 border border-emerald-200 text-emerald-800'}`}>
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{pushStatus}</span>
+            </div>
+          )}
+
+          {showJsonTool && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3 mb-4">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700">
+                Paste Property JSON (Single Object or Array)
+              </label>
+              <textarea
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder='{"title": "123 Example Street", "price": "$700,000", "status": "for_sale", "type": "House", "bedrooms": 4, "bathrooms": 2, "carSpaces": 2, "address": {"street": "123 Example Street", "suburb": "Berwick", "state": "VIC", "postcode": "3806", "fullAddress": "123 Example Street, Berwick VIC 3806"}}'
+                rows={5}
+                className="w-full p-3 bg-white font-mono text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-gold-500 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={handlePushListingJson}
+                className="px-4 py-2 bg-knight-900 hover:bg-knight-800 text-white rounded-xl text-xs font-bold transition-colors inline-flex items-center gap-1.5"
+              >
+                <UploadCloud className="w-3.5 h-3.5" />
+                <span>Push Listing to Live Site</span>
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Live Property Listings Overview */}
         <div className="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm mb-8">
           <div className="flex items-center justify-between mb-6">
@@ -247,7 +463,7 @@ export default function AdminPage() {
                 Current Catalogue
               </span>
               <h2 className="font-serif text-xl font-bold text-knight-900">
-                Managed Properties
+                Live CRM Listings ({listings.length})
               </h2>
             </div>
             <Link
@@ -260,55 +476,79 @@ export default function AdminPage() {
             </Link>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                <tr>
-                  <th className="py-3 px-4">Property</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4">Price</th>
-                  <th className="py-3 px-4">Specs</th>
-                  <th className="py-3 px-4">Assigned Agent</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {PROPERTIES.map((prop) => (
-                  <tr key={prop.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-knight-900">{prop.title}</div>
-                      <div className="text-slate-500 text-[11px]">{prop.address.fullAddress}</div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${prop.status === 'for_sale'
-                        ? 'bg-emerald-100 text-emerald-800'
-                        : prop.status === 'for_rent'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-red-100 text-red-800'
-                        }`}>
-                        {prop.status}
-                      </span>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold text-slate-900">{prop.price}</td>
-                    <td className="py-3.5 px-4 text-slate-600">
-                      {prop.bedrooms}b • {prop.bathrooms}ba • {prop.carSpaces}c
-                    </td>
-                    <td className="py-3.5 px-4 font-medium text-slate-800">{prop.agent.name}</td>
-                    <td className="py-3.5 px-4 text-right">
-                      <Link
-                        href={`/properties/${prop.slug}`}
-                        target="_blank"
-                        className="text-gold-700 font-semibold hover:underline inline-flex items-center gap-1"
-                      >
-                        <span>View</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </Link>
-                    </td>
+          {loadingListings ? (
+            <div className="py-12 text-center text-slate-400 text-xs">
+              Loading active listings...
+            </div>
+          ) : listings.length === 0 ? (
+            <div className="py-12 text-center border-2 border-dashed border-slate-200 rounded-xl">
+              <Home className="w-8 h-8 text-slate-300 mx-auto mb-2" />
+              <div className="font-bold text-knight-900 text-sm">No Active Listings in Website Storage</div>
+              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                No mock dummy listings are shown. Push listings from your CRM to <code className="bg-slate-100 px-1 py-0.5 rounded">/api/properties</code> or click &apos;Inject Sample Listing&apos; above.
+              </p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4">Property</th>
+                    <th className="py-3 px-4">Status</th>
+                    <th className="py-3 px-4">Price</th>
+                    <th className="py-3 px-4">Specs</th>
+                    <th className="py-3 px-4">Assigned Agent</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {listings.map((prop) => (
+                    <tr key={prop.id} className="hover:bg-slate-50/80 transition-colors">
+                      <td className="py-3.5 px-4">
+                        <div className="font-bold text-knight-900">{prop.title}</div>
+                        <div className="text-slate-500 text-[11px]">{prop.address.fullAddress}</div>
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${prop.status === 'for_sale'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : prop.status === 'for_rent'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-red-100 text-red-800'
+                          }`}>
+                          {prop.status}
+                        </span>
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-slate-900">{prop.price}</td>
+                      <td className="py-3.5 px-4 text-slate-600">
+                        {prop.bedrooms}b • {prop.bathrooms}ba • {prop.carSpaces}c
+                      </td>
+                      <td className="py-3.5 px-4 font-medium text-slate-800">{prop.agent?.name || 'Dons Premier'}</td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-3">
+                          <Link
+                            href={`/properties/${prop.slug}`}
+                            target="_blank"
+                            className="text-gold-700 font-semibold hover:underline inline-flex items-center gap-1"
+                          >
+                            <span>View</span>
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteListing(prop.id)}
+                            className="text-red-600 hover:text-red-800 p-1"
+                            title="Delete listing"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         {/* Office & Operations Directory */}
